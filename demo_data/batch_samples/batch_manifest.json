@@ -1,0 +1,42 @@
+{
+  "batch_id": "DEMO-BATCH-2026-001",
+  "created": "2026-01-23T00:01:14.160308",
+  "total_documents": 5,
+  "documents": [
+    {
+      "filename": "contract_01.txt",
+      "type": "contract",
+      "date": "2026-01-15T00:00:00",
+      "tampered": false,
+      "expected_confidence": 98
+    },
+    {
+      "filename": "contract_02.txt",
+      "type": "contract",
+      "date": "2026-01-22T00:00:00",
+      "tampered": true,
+      "expected_confidence": 95
+    },
+    {
+      "filename": "contract_03.txt",
+      "type": "contract",
+      "date": "2026-01-29T00:00:00",
+      "tampered": false,
+      "expected_confidence": 98
+    },
+    {
+      "filename": "certificate_04.txt",
+      "type": "certificate",
+      "date": "2026-02-05T00:00:00",
+      "tampered": true,
+      "expected_confidence": 95
+    },
+    {
+      "filename": "certificate_05.txt",
+      "type": "certificate",
+      "date": "2026-02-12T00:00:00",
+      "tampered": false,
+      "expected_confidence": 98
+    }
+  ]
+}

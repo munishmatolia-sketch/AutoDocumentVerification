@@ -1,0 +1,54 @@
+
+PROFESSIONAL SERVICES AGREEMENT
+
+Contract Number: PSA-2026-0129
+Contract Date: January 29, 2026
+
+PARTIES:
+Client: Acme Legal Corporation
+Address: 123 Business District, Legal City, LC 12345
+Phone: (555) 123-4567
+
+Service Provider: Document Analysis Services LLC  
+Address: 456 Forensics Avenue, Expert Town, ET 67890
+Phone: (555) 987-6543
+
+SCOPE OF SERVICES:
+The Service Provider agrees to perform comprehensive document forensics 
+and verification services for the Client, including but not limited to:
+
+1. Digital document authenticity verification
+2. Tampering detection and analysis
+3. Metadata extraction and examination
+4. Expert witness testimony preparation
+5. Forensic report generation
+
+CONTRACT TERMS:
+Service Period: January 29, 2026 to January 29, 2027
+Total Contract Value: $70,000.00
+Payment Terms: Net 30 days
+Deliverables: Monthly forensic analysis reports
+
+SPECIAL PROVISIONS:
+- All analysis must meet Daubert standard requirements
+- Chain of custody must be maintained for all evidence
+- Reports must be suitable for expert witness testimony
+- 99% accuracy guarantee on tampering detection
+
+SIGNATURES:
+
+Client Representative: _________________________ Date: January 30, 2026
+John Smith, Legal Director
+Acme Legal Corporation
+
+Service Provider: _____________________________ Date: January 30, 2026
+Dr. Sarah Johnson, Chief Forensics Officer
+Document Analysis Services LLC
+
+WITNESS: _____________________________________ Date: January 30, 2026
+Michael Brown, Notary Public
+License #: NP-2026-789
+
+This contract has been reviewed and approved by legal counsel.
+Document Hash: 265f10e1bf87701b
+Generated: 2026-01-23 00:01:14

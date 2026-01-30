@@ -1,0 +1,62 @@
+# Core dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+sqlalchemy==2.0.23
+alembic==1.13.0
+psycopg2-binary==2.9.9
+python-multipart==0.0.6
+httpx==0.25.2
+
+# Testing frameworks
+pytest==7.4.3
+hypothesis==6.92.1
+pytest-asyncio==0.21.1
+
+# Document processing
+python-magic==0.4.27
+chardet==5.2.0
+Pillow==10.1.0
+PyPDF2==3.0.1
+python-docx==1.1.0
+openpyxl==3.1.2
+exifread==3.0.0
+
+# AI/ML libraries
+opencv-python==4.8.1.78
+scikit-image==0.22.0
+spacy==3.7.2
+nltk==3.8.1
+numpy==1.25.2
+pandas==2.1.4
+
+# Security and cryptography
+cryptography==41.0.7
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+
+# Async processing
+celery==5.3.4
+redis==5.0.1
+
+# Visualization and reporting
+matplotlib==3.8.2
+reportlab==4.0.7
+jinja2==3.1.2
+
+# Web interface
+streamlit==1.28.2
+click==8.1.7
+rich==13.7.0
+
+# Rate limiting
+slowapi==0.1.9
+
+# System monitoring
+psutil==5.9.6
+
+# Development tools
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1

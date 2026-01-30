@@ -1,0 +1,20 @@
+{
+  "name": "Security Compliance Check",
+  "description": "Validate security and audit trail integrity for forensic evidence",
+  "trigger": {
+    "type": "file_save",
+    "patterns": ["src/document_forensics/security/**/*.py", "src/document_forensics/api/**/*.py"]
+  },
+  "actions": [
+    {
+      "type": "message",
+      "content": "Perform security audit validation to ensure forensic evidence integrity and legal compliance. Check encryption, audit trails, and chain of custody mechanisms."
+    },
+    {
+      "type": "command",
+      "command": "pytest tests/test_security_audit.py tests/test_api_contract_compliance.py -v",
+      "description": "Run security and compliance test suite"
+    }
+  ],
+  "enabled": true
+}

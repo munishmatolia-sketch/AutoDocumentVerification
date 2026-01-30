@@ -1,0 +1,6 @@
+This is a test document for the Document Forensics system.
+
+It contains some sample text to verify that the upload and analysis workflow is working correctly.
+
+Document created: January 30, 2026
+Purpose: Testing database integration

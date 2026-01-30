@@ -1,0 +1,15 @@
+{
+  "name": "Documentation Sync",
+  "description": "Update documentation when core forensic components change",
+  "trigger": {
+    "type": "file_save",
+    "patterns": ["src/document_forensics/analysis/**/*.py", "src/document_forensics/core/models.py"]
+  },
+  "actions": [
+    {
+      "type": "message",
+      "content": "Core forensic analysis components have been modified. Please review and update the technical documentation, API specifications, and expert testimony preparation materials to reflect any changes in methodology or capabilities."
+    }
+  ],
+  "enabled": true
+}

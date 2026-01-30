@@ -1,0 +1,332 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+env:
+  PYTHON_VERSION: '3.12'
+  NODE_VERSION: '18'
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest-cov pytest-xdist
+    
+    - name: Create test directories
+      run: |
+        mkdir -p uploads/documents uploads/metadata uploads/temp
+        mkdir -p logs models
+    
+    - name: Run unit tests
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+        REDIS_URL: redis://localhost:6379/0
+        PYTHONPATH: ${{ github.workspace }}/src
+      run: |
+        python -m pytest tests/ -v --cov=src/document_forensics --cov-report=xml --cov-report=html -x
+    
+    - name: Run property-based tests
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+        REDIS_URL: redis://localhost:6379/0
+        PYTHONPATH: ${{ github.workspace }}/src
+      run: |
+        python -m pytest tests/ -k "property" -v --tb=short
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+    
+    - name: Archive test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results
+        path: |
+          htmlcov/
+          coverage.xml
+          pytest-report.xml
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+    
+    - name: Run Bandit security scan
+      run: |
+        bandit -r src/ -f json -o bandit-report.json || true
+        bandit -r src/ -f txt
+    
+    - name: Run Safety check
+      run: |
+        safety check --json --output safety-report.json || true
+        safety check
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install linting tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black isort mypy
+    
+    - name: Run Black formatter check
+      run: |
+        black --check --diff src/ tests/
+    
+    - name: Run isort import sorting check
+      run: |
+        isort --check-only --diff src/ tests/
+    
+    - name: Run flake8 linting
+      run: |
+        flake8 src/ tests/ --max-line-length=100 --extend-ignore=E203,W503
+    
+    - name: Run mypy type checking
+      run: |
+        mypy src/ --ignore-missing-imports --no-strict-optional
+
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [test, security-scan, lint]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Login to Docker Hub
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: document-forensics/api
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install deployment dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Create deployment configuration
+      run: |
+        python scripts/deploy.py create-config \
+          --name document-forensics-staging \
+          --version ${{ github.sha }} \
+          --environment staging
+    
+    - name: Deploy to staging
+      env:
+        PYTHONPATH: ${{ github.workspace }}/src
+      run: |
+        python scripts/deploy.py deploy \
+          --config deployments/document-forensics-staging-staging.yml \
+          --name staging-${{ github.sha }}
+    
+    - name: Run health checks
+      env:
+        PYTHONPATH: ${{ github.workspace }}/src
+      run: |
+        python scripts/health-check.py --wait 300 --check-interval 10
+    
+    - name: Run integration tests
+      env:
+        PYTHONPATH: ${{ github.workspace }}/src
+        API_BASE_URL: ${{ secrets.STAGING_API_URL }}
+      run: |
+        python -m pytest tests/test_end_to_end_integration.py -v
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'release'
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install deployment dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Create deployment configuration
+      run: |
+        python scripts/deploy.py create-config \
+          --name document-forensics-production \
+          --version ${{ github.event.release.tag_name }} \
+          --environment production
+    
+    - name: Deploy to production
+      env:
+        PYTHONPATH: ${{ github.workspace }}/src
+      run: |
+        python scripts/deploy.py deploy \
+          --config deployments/document-forensics-production-production.yml \
+          --name production-${{ github.event.release.tag_name }}
+    
+    - name: Run health checks
+      env:
+        PYTHONPATH: ${{ github.workspace }}/src
+      run: |
+        python scripts/health-check.py --wait 600 --check-interval 15
+    
+    - name: Run smoke tests
+      env:
+        PYTHONPATH: ${{ github.workspace }}/src
+        API_BASE_URL: ${{ secrets.PRODUCTION_API_URL }}
+      run: |
+        python -m pytest tests/test_end_to_end_integration.py::TestEndToEndIntegration::test_api_integration_with_external_systems -v
+
+  notify:
+    name: Notify Deployment
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always()
+    
+    steps:
+    - name: Notify Slack
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

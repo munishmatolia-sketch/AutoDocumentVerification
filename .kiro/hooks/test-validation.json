@@ -1,0 +1,20 @@
+{
+  "name": "Forensic Test Validation",
+  "description": "Automatically validate forensic analysis correctness after code changes",
+  "trigger": {
+    "type": "file_save",
+    "patterns": ["src/**/*.py", "tests/**/*.py"]
+  },
+  "actions": [
+    {
+      "type": "message",
+      "content": "Run comprehensive forensic system validation including property-based tests to ensure analysis accuracy and legal compliance."
+    },
+    {
+      "type": "command",
+      "command": "pytest tests/test_*forensic*.py -v --tb=short",
+      "description": "Execute forensic-specific test suite"
+    }
+  ],
+  "enabled": true
+}

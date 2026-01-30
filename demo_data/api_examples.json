@@ -1,0 +1,69 @@
+{
+  "document_upload": {
+    "request": {
+      "method": "POST",
+      "url": "/api/v1/documents/upload",
+      "headers": {
+        "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+        "Content-Type": "multipart/form-data"
+      },
+      "body": {
+        "file": "contract_tampered.txt",
+        "description": "Legal services agreement for verification",
+        "priority": 5,
+        "encrypt": true
+      }
+    },
+    "response": {
+      "success": true,
+      "document_id": "doc_123456789",
+      "message": "Document uploaded successfully",
+      "hash": "a1b2c3d4e5f6...",
+      "size_bytes": 2048
+    }
+  },
+  "analysis_request": {
+    "request": {
+      "method": "POST",
+      "url": "/api/v1/analysis/analyze",
+      "body": {
+        "document_id": "doc_123456789",
+        "include_metadata": true,
+        "include_tampering": true,
+        "include_authenticity": true,
+        "priority": 5
+      }
+    },
+    "response": {
+      "analysis_id": "analysis_987654321",
+      "status": "processing",
+      "estimated_completion": "2026-01-17T09:05:00Z",
+      "progress_url": "/api/v1/analysis/analysis_987654321/status"
+    }
+  },
+  "batch_processing": {
+    "request": {
+      "method": "POST",
+      "url": "/api/v1/batch/process",
+      "body": {
+        "document_ids": [
+          "doc_001",
+          "doc_002",
+          "doc_003",
+          "doc_004",
+          "doc_005"
+        ],
+        "priority": "high",
+        "webhook_url": "https://client.example.com/webhook/forensics",
+        "notification_email": "analyst@example.com"
+      }
+    },
+    "response": {
+      "batch_id": "batch_456789123",
+      "status": "queued",
+      "total_documents": 5,
+      "estimated_completion": "2026-01-17T09:15:00Z",
+      "status_url": "/api/v1/batch/batch_456789123/status"
+    }
+  }
+}

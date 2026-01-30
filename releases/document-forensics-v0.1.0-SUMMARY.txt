@@ -1,0 +1,30 @@
+﻿Document Forensics v0.1.0 Release Summary
+================================================
+
+Release Date: 2026-01-30
+Release Type: Initial Alpha Release
+
+Files Included:
+- document-forensics-v0.1.0.zip (Windows/Linux/macOS)
+- document-forensics-v0.1.0.sha256 (Checksums)
+
+Installation:
+1. Extract the archive
+2. Run install.ps1 (Windows) or install.sh (Linux/macOS)
+3. Configure .env file
+4. Start services
+
+Documentation:
+- README.md - Main documentation
+- QUICKSTART.md - Quick start guide
+- DEPLOYMENT.md - Production deployment guide
+- RELEASE_NOTES.md - Release notes and features
+- CHANGELOG.md - Version history
+
+Support:
+- GitHub: https://github.com/docforensics/document-forensics
+- Issues: https://github.com/docforensics/document-forensics/issues
+- Email: team@docforensics.com
+
+Checksums (SHA-256):
+08E7CDB66CB934959EBCA4CE36856572FE3A0B18B83E7097EE055A155CC01CBB  document-forensics-v0.1.0.zip

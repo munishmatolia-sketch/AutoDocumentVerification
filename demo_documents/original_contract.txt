@@ -1,0 +1,22 @@
+
+LEGAL CONTRACT AGREEMENT
+
+Contract Date: January 15, 2026
+Contract Number: LC-2026-001
+
+PARTIES:
+- Client: Acme Corporation
+- Provider: Legal Services LLC
+
+TERMS:
+This agreement establishes the terms for legal document review services.
+The contract period is from January 15, 2026 to December 31, 2026.
+
+Total Contract Value: $50,000.00
+
+SIGNATURES:
+Client Representative: [Signature]
+Date Signed: January 15, 2026
+
+Provider Representative: [Signature] 
+Date Signed: January 15, 2026
